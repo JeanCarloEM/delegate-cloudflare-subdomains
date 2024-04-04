@@ -1,0 +1,45 @@
+{
+  "name": "delegate-cloudflare-subdomains",
+  "version": "1.0.0",
+  "description": "Rest API to create delegated subdomains via the clousflare Rest API",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JeanCarloEM/delegate-cloudflare-subdomains.git"
+  },
+  "author": "JeanCarloEM.com",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/JeanCarloEM/delegate-cloudflare-subdomains.git/issues"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "typecheck": "tsc --p .",
+    "compile": "tsc",
+    "compile1": "cross-env-shell babel $INIT_CWD -d $INIT_CWD --extensions '.ts' --no-comments --source-maps",
+    "typecheck-compile": "npm run typecheck && npm run compile",
+    "treatjs": "concurrently \"npm run minify\" \"npm run prettier_dist\"",
+    "treatjs2": "",
+    "minify": "uglifyjs \"dist/*\" -o scripts.min.js",
+    "prettier_dist": "prettier --write \"dist\"",
+    "watch": "tsc-watch --onSuccess \"npm run treatjs2\"",
+    "server": "lite-server --baseDir=",
+    "copy": "cpx -w -f \"src/**\" \"dist/\" -p --ignore \"*.ts\"",
+    "start": "concurrently \"npm run copy\" \"npm run watch\" \"npm run server\"",
+    "glob_dist": "glob \"dist/**/*.js\" -i \"dist/**/*.min.js\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cpx2": "^7.0.1",
+    "lite-server": "^2.6.1",
+    "tsc-watch": "^6.2.0",
+    "typescript": "^5.4.3"
+  },
+  "dependencies": {
+    "cloudflare": "^3.0.0",
+    "express": "^4.19.2",
+    "mariadb": "^3.3.0",
+    "nanoid": "^5.0.6",
+    "node-cache": "^5.1.2"
+  }
+}
