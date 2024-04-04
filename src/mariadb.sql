@@ -151,15 +151,16 @@ BEGIN
 END;
 
 
+create
+
+
 /**
  * // 2024040440004657303
  */
 CREATE TABLE records{
   rid SERIAL,
       
-  zid BIGINT UNSIGNED NOT NULL
-  validation BIGINT UNSIGNED NOT NULL,
-  reciprocity BIGINT UNSIGNED DEFAULT NULL,    
+  zid BIGINT UNSIGNED NOT NULL    
 
   subdomain varchar(64) NOT NULL,   
   ns_hostname varchar(255) NOT NULL,    
@@ -173,8 +174,7 @@ CREATE TABLE records{
   
   created timestamp DEFAULT NULL,
   updated timestamp DEFAULT NULL,    
-  
-  FOREIGN KEY (validation) REFERENCES authentications(vmid)
+    
   FOREIGN KEY (reciprocity) REFERENCES donations(did)
   FOREIGN KEY (zid) REFERENCES zones(zid)    
 }
@@ -196,9 +196,7 @@ END;
 
 CREATE TRIGGER records_before_update BEFORE UPDATE ON `records`
 FOR EACH ROW 
-BEGIN
-  NEW.validation = OLD.validation;
-  NEW.reciprocity = OLD.reciprocity;
+BEGIN  
   NEW.subdomain = OLD.subdomain;
   NEW.zid = OLD.zid; 
   
@@ -231,5 +229,76 @@ BEGIN
   NEW.created = OLD.created  
   NEW.updated = CURRENT_TIMESTAMP();  
 END;
+
+
+
+/**
+ * 
+ */
+CREATE TABLE records_validations{
+  rvid SERIAL,        
+  
+  auth BIGINT UNSIGNED NOT NULL, 
+  `record` BIGINT UNSIGNED NOT NULL, 
+  actions enum ('renew', 'change_ns', 'cancel'),
+  
+  created timestamp DEFAULT NULL,
+  updated timestamp DEFAULT NULL,    
+  
+  FOREIGN KEY (auth) REFERENCES authentications(vmid)
+  FOREIGN KEY (`record`) REFERENCES records(rid)  
+}
+
+CREATE TRIGGER records_validations_before_insert BEFORE INSERT ON `records_validations`
+FOR EACH ROW 
+BEGIN
+  NEW.created = CURRENT_TIMESTAMP()
+  NEW.updated = NULL;
+END;
+
+CREATE TRIGGER records_validations_before_update BEFORE UPDATE ON `records_validations`
+FOR EACH ROW 
+BEGIN
+  NEW.auth = OLD.auth;
+  NEW.record = OLD.record;
+  
+  NEW.created = OLD.created
+  NEW.updated = NULL;  
+END;
+
+
+/**
+ * 
+ */
+CREATE TABLE records_donations{
+  rvid SERIAL,        
+  
+  donation BIGINT UNSIGNED NOT NULL, 
+  `record` BIGINT UNSIGNED NOT NULL, 
+  
+  created timestamp DEFAULT NULL,
+  updated timestamp DEFAULT NULL,    
+  
+  FOREIGN KEY (donation) REFERENCES donations(did)
+  FOREIGN KEY (`record`) REFERENCES records(rid)  
+}
+
+CREATE TRIGGER records_donations_before_insert BEFORE INSERT ON `records_donations`
+FOR EACH ROW 
+BEGIN
+  NEW.created = CURRENT_TIMESTAMP()
+  NEW.updated = NULL;
+END;
+
+CREATE TRIGGER records_donations_before_update BEFORE UPDATE ON `records_donations`
+FOR EACH ROW 
+BEGIN
+  NEW.donation = OLD.auth;
+  NEW.record = OLD.record;
+  
+  NEW.created = OLD.created
+  NEW.updated = NULL;  
+END;
+
 
 END $$ DELIMITER ;
